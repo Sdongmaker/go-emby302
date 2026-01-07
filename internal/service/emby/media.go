@@ -14,8 +14,6 @@ import (
 	"sync"
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
-	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/openlist"
-	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/path"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/https"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/jsons"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
