@@ -16,15 +16,15 @@ import (
 //  3. 如果请求不包含 ParentId 参数，返回自定义统计数据（全局统计）
 //
 // 使用场景：
-//  - Emby 客户端启动时会请求 /Items/Counts 获取媒体库统计信息
-//  - 用户可以通过配置文件自定义显示的数量，美化展示效果
+//   - Emby 客户端启动时会请求 /Items/Counts 获取媒体库统计信息
+//   - 用户可以通过配置文件自定义显示的数量，美化展示效果
 func HandleItemsCounts(c *gin.Context) {
 	// 1. 检查是否启用自定义统计
-	if !config.C.ItemsCounts.Enable {
-		logs.Info("Items/Counts: 未启用自定义统计，回源透传")
-		ProxyOrigin(c)
-		return
-	}
+	// if !config.C.ItemsCounts.Enable {
+	// 	logs.Info("Items/Counts: 未启用自定义统计，回源透传")
+	// 	ProxyOrigin(c)
+	// 	return
+	// }
 
 	// 2. 检查是否有 ParentId 参数
 	parentId := c.Query("ParentId")
