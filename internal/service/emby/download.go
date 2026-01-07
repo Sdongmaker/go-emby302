@@ -103,44 +103,10 @@ func HandleSyncDownload(c *gin.Context) {
 
 }
 
-// DownloadStrategyChecker 拦截下载请求, 并根据配置的策略进行响应
+// DownloadStrategyChecker 下载策略检查器（已简化，保留用于兼容性）
 func DownloadStrategyChecker() gin.HandlerFunc {
-
-	var downloadRoutes = []*regexp.Regexp{
-		regexp.MustCompile(constant.Reg_ItemDownload),
-		regexp.MustCompile(constant.Reg_ItemSyncDownload),
-	}
-
+	// 下载策略已移除，直接放行所有请求
 	return func(c *gin.Context) {
-		// 放行非下载接口
-		var flag bool
-		for _, route := range downloadRoutes {
-			if route.MatchString(c.Request.RequestURI) {
-				flag = true
-				break
-			}
-		}
-		if !flag {
-			return
-		}
-
-		strategy := config.C.Emby.DownloadStrategy
-
-		if strategy == config.DlStrategyDirect {
-			return
-		}
-		defer c.Abort()
-
-		if strategy == config.DlStrategy403 {
-			c.String(http.StatusForbidden, "下载接口已禁用")
-			return
-		}
-
-		if strategy == config.DlStrategyOrigin {
-			if err := https.ProxyPass(c.Request, c.Writer, config.C.Emby.Host); err != nil {
-				logs.Error("下载接口代理失败: %v", err)
-			}
-		}
-
+		// 不做任何处理，继续执行后续中间件
 	}
 }

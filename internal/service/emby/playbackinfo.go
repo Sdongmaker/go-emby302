@@ -110,12 +110,6 @@ func TransferPlaybackInfo(c *gin.Context) {
 			return haveReturned
 		}
 
-		// 如果是本地媒体, 不处理
-		embyPath, _ := source.Attr("Path").String()
-		if strings.HasPrefix(embyPath, config.C.Emby.LocalMediaRoot) {
-			return nil
-		}
-
 		// 转换直链链接
 		source.Put("SupportsDirectPlay", jsons.FromValue(true))
 		source.Put("SupportsDirectStream", jsons.FromValue(true))
@@ -178,23 +172,14 @@ func handleSpecialPlayback(c *gin.Context, itemInfo ItemInfo) bool {
 	err := mediaSources.RangeArr(func(index int, value *jsons.Item) error {
 		// 电视直播
 		iis, _ := value.Attr("IsInfiniteStream").Bool()
-		flag := iis
-
-		// 本地媒体
-		path, _ := value.Attr("Path").String()
-		if strings.HasPrefix(path, config.C.Emby.LocalMediaRoot) {
-			logs.Info("本地媒体: %s, 回源处理", path)
-			flag = true
+		if iis {
+			// 特殊媒体直接代理至源服务器
+			c.Request.Body = originRequestBody
+			ProxyOrigin(c)
+			return haveReturned
 		}
 
-		if !flag {
-			return nil
-		}
-
-		// 特殊媒体直接代理至源服务器
-		c.Request.Body = originRequestBody
-		ProxyOrigin(c)
-		return haveReturned
+		return nil
 	})
 
 	return err == haveReturned
