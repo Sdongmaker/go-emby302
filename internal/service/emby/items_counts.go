@@ -40,6 +40,27 @@ func HandleItemsCounts(c *gin.Context) {
 	// 生成 Emby 格式的 JSON 响应
 	countsData := config.C.ItemsCounts.ToJSON()
 
+	// 详细日志输出 - 主要媒体类型
+	logs.Success("Items/Counts 统计: 电影=%d, 剧集=%d, 分集=%d, 总计=%d",
+		countsData["MovieCount"],
+		countsData["SeriesCount"],
+		countsData["EpisodeCount"],
+		countsData["ItemCount"])
+
+	// 如果配置了其他类型的媒体，也输出日志
+	if countsData["SongCount"] > 0 || countsData["AlbumCount"] > 0 || countsData["ArtistCount"] > 0 {
+		logs.Info("Items/Counts 音乐: 歌曲=%d, 专辑=%d, 艺术家=%d",
+			countsData["SongCount"],
+			countsData["AlbumCount"],
+			countsData["ArtistCount"])
+	}
+
+	if countsData["GameCount"] > 0 {
+		logs.Info("Items/Counts 游戏: 游戏=%d, 游戏系统=%d",
+			countsData["GameCount"],
+			countsData["GameSystemCount"])
+	}
+
 	// 返回 JSON 响应
 	c.Header("Content-Type", "application/json; charset=utf-8")
 	c.JSON(http.StatusOK, countsData)
