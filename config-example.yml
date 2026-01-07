@@ -9,22 +9,34 @@ emby:
   # 图片质量, 默认请求原图
   # 配置范围: [1, 100]
   images-quality: 100
-  strm:                                      # STRM 文件 302 重定向配置
-    # 路径映射规则（核心配置）
-    # 将 STRM 文件内的 URL 片段替换成指定片段，然后 302 重定向到最终地址
-    # 可配置多个映射, 使用 [=>] 符号分割, 程序自上而下匹配第一个结果
+  strm:                                      # STRM 文件路径映射配置
+    # 路径映射规则：将 STRM 文件中的本地路径转换为 CDN 直链
+    # 从上到下匹配第一个符合的规则
     #
-    # 示例:
-    # STRM 内容: https://origin.com/video.mp4 → 重定向到: https://cdn.example.com/video.mp4
-    # STRM 内容: https://api.com/file?token=old → 重定向到: https://api.com/file?token=new
-    path-map:
-      - https://origin.com => https://cdn.example.com
-      - token=old => token=new
-    # 是否启用内部重定向跟随
-    #
-    # 启用: 程序会先请求 STRM 中的 URL，跟随所有 302 重定向，获取最终地址后再返回给客户端
-    # 禁用: 程序直接将映射后的地址返回给客户端
-    internal-redirect-enable: false
+    # 示例：
+    # STRM 内容: /mnt/media/剧集/国产剧/101次抢婚 (2023)/Season 1/101次抢婚 - S01E01 - 第 1 集.mp4
+    # 匹配规则: local-prefix: /mnt/media/剧集
+    # 转换逻辑:
+    #   1. 去掉 local-prefix: /国产剧/101次抢婚 (2023)/Season 1/101次抢婚 - S01E01 - 第 1 集.mp4
+    #   2. 拼接 cdn-base + remote-prefix: https://tx-cdn.example.com/剧集/国产剧/...
+    # 最终重定向: https://tx-cdn.example.com/剧集/国产剧/101次抢婚 (2023)/Season 1/101次抢婚 - S01E01 - 第 1 集.mp4
+    path-mappings:
+      # 腾讯云 CDN - 剧集
+      - local-prefix: /mnt/media/剧集        # 本地路径前缀
+        cdn-base: https://tx-cdn.example.com # CDN 域名
+        remote-prefix: /剧集                 # CDN 上的路径前缀
+
+      # 腾讯云 CDN - 电影
+      - local-prefix: /mnt/media/电影
+        cdn-base: https://tx-cdn.example.com
+        remote-prefix: /电影
+
+      # 阿里云 CDN - 近期更新
+      - local-prefix: /mnt/media/近期更新
+        cdn-base: https://ali-cdn.example.com
+        remote-prefix: /近期更新
+
+      # 可以添加更多映射规则...
 
 cache:
   # 是否启用缓存中间件

@@ -42,8 +42,6 @@ var validDlStrategy = map[DlStrategy]struct{}{
 type Emby struct {
 	// Emby 源服务器地址
 	Host string `yaml:"host"`
-	// rclone 或者 cd 的挂载目录
-	MountPath string `yaml:"mount-path"`
 	// EpisodesUnplayPrior 在获取剧集列表时是否将未播资源优先展示
 	EpisodesUnplayPrior bool `yaml:"episodes-unplay-prior"`
 	// ResortRandomItems 是否对随机的 items 进行重排序
@@ -54,10 +52,6 @@ type Emby struct {
 	ImagesQuality int `yaml:"images-quality"`
 	// Strm strm 配置
 	Strm *Strm `yaml:"strm"`
-	// DownloadStrategy 下载接口响应策略
-	DownloadStrategy DlStrategy `yaml:"download-strategy"`
-	// LocalMediaRoot 本地媒体根路径
-	LocalMediaRoot string `yaml:"local-media-root"`
 }
 
 func (e *Emby) Init() error {
@@ -67,10 +61,6 @@ func (e *Emby) Init() error {
 	if strs.AnyEmpty(string(e.ProxyErrorStrategy)) {
 		// 失败默认回源
 		e.ProxyErrorStrategy = PeStrategyOrigin
-	}
-	if strs.AnyEmpty(string(e.DownloadStrategy)) {
-		// 默认响应直链
-		e.DownloadStrategy = DlStrategyDirect
 	}
 
 	e.ProxyErrorStrategy = PeStrategy(strings.TrimSpace(string(e.ProxyErrorStrategy)))
@@ -93,53 +83,68 @@ func (e *Emby) Init() error {
 		return fmt.Errorf("emby.strm 配置错误: %v", err)
 	}
 
-	e.DownloadStrategy = DlStrategy(strings.TrimSpace(string(e.DownloadStrategy)))
-	if _, ok := validDlStrategy[e.DownloadStrategy]; !ok {
-		return fmt.Errorf("emby.download-strategy 配置错误, 有效值: %v", maps.Keys(validDlStrategy))
-	}
-
-	// 如果没有配置, 生成一个随机前缀, 避免将网盘资源误识别为本地
-	if e.LocalMediaRoot = strings.TrimSpace(e.LocalMediaRoot); e.LocalMediaRoot == "" {
-		e.LocalMediaRoot = "/" + randoms.RandomHex(32)
-	}
-
 	return nil
+}
+
+// PathMapping 路径映射配置
+type PathMapping struct {
+	// LocalPrefix 本地路径前缀
+	LocalPrefix string `yaml:"local-prefix"`
+	// CdnBase CDN 域名
+	CdnBase string `yaml:"cdn-base"`
+	// RemotePrefix CDN 上的路径前缀
+	RemotePrefix string `yaml:"remote-prefix"`
 }
 
 // Strm strm 配置
 type Strm struct {
-	// PathMap 远程路径映射
-	PathMap []string `yaml:"path-map"`
-	// InternalRedirectEnable 是否启用 strm 内部重定向
-	InternalRedirectEnable bool `yaml:"internal-redirect-enable"`
-
-	// pathMap 配置初始化后转换为二维数组切片结构
-	pathMap [][2]string
+	// PathMappings 路径映射配置列表
+	PathMappings []PathMapping `yaml:"path-mappings"`
 }
 
 // Init 配置初始化
 func (s *Strm) Init() error {
-	s.pathMap = make([][2]string, 0, len(s.PathMap))
-	for _, path := range s.PathMap {
-		splits := strings.Split(path, "=>")
-		if len(splits) != 2 {
-			return fmt.Errorf("映射配置不规范: %s, 请使用 => 进行分割", path)
-		}
-		from, to := strings.TrimSpace(splits[0]), strings.TrimSpace(splits[1])
-		s.pathMap = append(s.pathMap, [2]string{from, to})
+	if len(s.PathMappings) == 0 {
+		return errors.New("strm.path-mappings 不能为空，至少需要配置一个映射规则")
 	}
+
+	for i, mapping := range s.PathMappings {
+		if strs.AnyEmpty(mapping.LocalPrefix) {
+			return fmt.Errorf("strm.path-mappings[%d].local-prefix 不能为空", i)
+		}
+		if strs.AnyEmpty(mapping.CdnBase) {
+			return fmt.Errorf("strm.path-mappings[%d].cdn-base 不能为空", i)
+		}
+		if strs.AnyEmpty(mapping.RemotePrefix) {
+			return fmt.Errorf("strm.path-mappings[%d].remote-prefix 不能为空", i)
+		}
+
+		// 标准化配置：确保 LocalPrefix 不以 / 结尾
+		s.PathMappings[i].LocalPrefix = strings.TrimRight(mapping.LocalPrefix, "/")
+		// 确保 CdnBase 不以 / 结尾
+		s.PathMappings[i].CdnBase = strings.TrimRight(mapping.CdnBase, "/")
+		// 确保 RemotePrefix 不以 / 结尾
+		s.PathMappings[i].RemotePrefix = strings.TrimRight(mapping.RemotePrefix, "/")
+	}
+
 	return nil
 }
 
-// MapPath 将传入路径按照预配置的映射关系从上到下按顺序进行映射,
-// 至多成功映射一次
-func (s *Strm) MapPath(path string) string {
-	for _, m := range s.pathMap {
-		from, to := m[0], m[1]
-		if strings.Contains(path, from) {
-			logs.Tip("映射路径: [%s] => [%s]", from, to)
-			return strings.Replace(path, from, to, 1)
+// MapPath 将本地路径映射为 CDN 直链
+// 示例：
+//   输入: /mnt/media/剧集/国产剧/101次抢婚 (2023)/Season 1/101次抢婚 - S01E01 - 第 1 集.mp4
+//   配置: local-prefix: /mnt/media/剧集, cdn-base: https://cdn.example.com, remote-prefix: /剧集
+//   输出: https://cdn.example.com/剧集/国产剧/101次抢婚 (2023)/Season 1/101次抢婚 - S01E01 - 第 1 集.mp4
+func (s *Strm) MapPath(localPath string) (string, error) {
+	for _, mapping := range s.PathMappings {
+		if strings.HasPrefix(localPath, mapping.LocalPrefix) {
+			// 去掉本地前缀
+			relativePath := strings.TrimPrefix(localPath, mapping.LocalPrefix)
+			// 拼接 CDN 地址
+			cdnUrl := mapping.CdnBase + mapping.RemotePrefix + relativePath
+			logs.Info("路径映射: [%s] -> [%s]", localPath, cdnUrl)
+			return cdnUrl, nil
 		}
 	}
-	return path
+	return "", fmt.Errorf("未找到匹配的路径映射规则: %s", localPath)
 }
