@@ -1,6 +1,10 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
+)
 
 // ItemsCounts Items/Counts 接口配置
 type ItemsCounts struct {
@@ -38,10 +42,13 @@ type ItemsCounts struct {
 
 // Init 配置初始化
 func (ic *ItemsCounts) Init() error {
-	// 如果未启用，不需要验证其他配置
+	// 输出启用状态
 	if !ic.Enable {
+		logs.Info("Items/Counts 自定义统计: 未启用，将回源透传")
 		return nil
 	}
+
+	logs.Info("Items/Counts 自定义统计: 已启用")
 
 	// 验证数量配置不能为负数
 	if ic.MovieCount < 0 {
@@ -57,6 +64,26 @@ func (ic *ItemsCounts) Init() error {
 		return fmt.Errorf("items-counts.item-count 不能为负数: %d", ic.ItemCount)
 	}
 
+	// 输出主要媒体类型配置
+	logs.Info("Items/Counts 主要配置: 电影=%d, 剧集=%d, 分集=%d",
+		ic.MovieCount, ic.SeriesCount, ic.EpisodeCount)
+
+	// 如果配置了其他类型的媒体，也输出日志
+	if ic.SongCount > 0 || ic.AlbumCount > 0 || ic.ArtistCount > 0 {
+		logs.Info("Items/Counts 音乐配置: 歌曲=%d, 专辑=%d, 艺术家=%d",
+			ic.SongCount, ic.AlbumCount, ic.ArtistCount)
+	}
+
+	if ic.GameCount > 0 {
+		logs.Info("Items/Counts 游戏配置: 游戏=%d, 游戏系统=%d",
+			ic.GameCount, ic.GameSystemCount)
+	}
+
+	if ic.TrailerCount > 0 || ic.ProgramCount > 0 || ic.BookCount > 0 || ic.BoxSetCount > 0 || ic.MusicVideoCount > 0 {
+		logs.Info("Items/Counts 其他配置: 预告片=%d, 节目=%d, 书籍=%d, 合集=%d, 音乐视频=%d",
+			ic.TrailerCount, ic.ProgramCount, ic.BookCount, ic.BoxSetCount, ic.MusicVideoCount)
+	}
+
 	// 如果 ItemCount 为 0，自动计算为所有类型的总和
 	if ic.ItemCount == 0 {
 		ic.ItemCount = ic.MovieCount + ic.SeriesCount + ic.EpisodeCount +
@@ -64,6 +91,9 @@ func (ic *ItemsCounts) Init() error {
 			ic.GameSystemCount + ic.TrailerCount + ic.SongCount +
 			ic.AlbumCount + ic.MusicVideoCount + ic.BoxSetCount +
 			ic.BookCount
+		logs.Info("Items/Counts 总数: 自动计算为 %d（所有类型总和）", ic.ItemCount)
+	} else {
+		logs.Info("Items/Counts 总数: 手动配置为 %d", ic.ItemCount)
 	}
 
 	return nil
