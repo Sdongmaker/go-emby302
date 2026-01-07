@@ -15,8 +15,6 @@ type Config struct {
 	Emby *Emby `yaml:"emby"`
 	// Openlist openlist 相关配置
 	Openlist *Openlist `yaml:"openlist"`
-	// VideoPreview 网盘转码链接代理配置
-	VideoPreview *VideoPreview `yaml:"video-preview"`
 	// Path 路径相关配置
 	Path *Path `yaml:"path"`
 	// Cache 缓存相关配置

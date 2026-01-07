@@ -89,7 +89,6 @@ func TransferPlaybackInfo(c *gin.Context) {
 	}
 
 	var haveReturned = errors.New("have returned")
-	resChans := make([]chan []*jsons.Item, 0, mediaSources.Len())
 	err = mediaSources.RangeArr(func(_ int, source *jsons.Item) error {
 		simplifyMediaName(source)
 
@@ -136,20 +135,6 @@ func TransferPlaybackInfo(c *gin.Context) {
 		source.DelKey("TranscodingSubProtocol")
 		source.DelKey("TranscodingContainer")
 
-		// 如果是远程资源, 不获取转码地址
-		ir, _ := source.Attr("IsRemote").Bool()
-		if ir {
-			return nil
-		}
-
-		// 添加转码 MediaSource 获取
-		cfg := config.C.VideoPreview
-		if !msInfo.Empty || !cfg.Enable || !cfg.ContainerValid(source.Attr("Container").Val().(string)) {
-			return nil
-		}
-		resChan := make(chan []*jsons.Item, 1)
-		go findVideoPreviewInfos(source, itemInfo.ApiKey, resChan)
-		resChans = append(resChans, resChan)
 		return nil
 	})
 
@@ -164,14 +149,6 @@ func TransferPlaybackInfo(c *gin.Context) {
 		c.Header(cache.HeaderKeySpace, PlaybackCacheSpace)
 		c.Header(cache.HeaderKeySpaceKey, calcPlaybackInfoSpaceCacheKey(itemInfo))
 	}()
-
-	// 收集异步请求的转码资源信息
-	for _, resChan := range resChans {
-		previewInfos := <-resChan
-		if len(previewInfos) > 0 {
-			mediaSources.Append(previewInfos...)
-		}
-	}
 
 	https.CloneHeader(c.Writer, respHeader)
 	jsons.OkResp(c.Writer, resJson)
@@ -391,62 +368,7 @@ func LoadCacheItems(c *gin.Context) {
 		resJson.Attr("Path").Set(urls.Unescape(path))
 	}
 
-	defer func() {
-		jsons.OkResp(c.Writer, resJson)
-	}()
-
-	// 未开启转码资源获取功能
-	if !config.C.VideoPreview.Enable {
-		return
-	}
-
-	// 只处理特定类型的 Items 响应
-	itemType, _ := resJson.Attr("Type").String()
-	if !ValidCacheItemsTypeRegex.MatchString(itemType) {
-		return
-	}
-
-	// 特定客户端不处理
-	if UnvalidCacheItemsUARegex.MatchString(c.GetHeader("User-Agent")) {
-		return
-	}
-
-	// 解析出 ItemId
-	itemInfo, err := resolveItemInfo(c, RouteItems)
-	if err != nil {
-		return
-	}
-	logs.Info("itemInfo 解析结果: %s", itemInfo)
-
-	// coverMediaSources 解析 PlaybackInfo 中的 MediaSources 属性
-	// 并覆盖到当前请求的响应中
-	// 成功覆盖时, 返回 true
-	coverMediaSources := func(info *jsons.Item) bool {
-		cacheMs, ok := info.Attr("MediaSources").Done()
-		if !ok || cacheMs.Type() != jsons.JsonTypeArr {
-			return false
-		}
-		resJson.Put("MediaSources", cacheMs)
-		c.Writer.Header().Del("Content-Length")
-		return true
-	}
-
-	// 获取附带转码信息的 PlaybackInfo 数据
-	spaceCache, ok := getPlaybackInfoByCacheSpace(itemInfo)
-	if ok {
-		cacheBody, err := spaceCache.JsonBody()
-		if err == nil && coverMediaSources(cacheBody) {
-			return
-		}
-	}
-
-	// 缓存空间中没有当前 Item 的 PlaybackInfo 数据, 手动请求
-	bodyJson, err := fetchFullPlaybackInfo(itemInfo)
-	if err != nil {
-		logs.Warn("更新 Items 缓存异常: %v", err)
-		return
-	}
-	coverMediaSources(bodyJson)
+	jsons.OkResp(c.Writer, resJson)
 }
 
 // fetchFullPlaybackInfo 请求全量的 PlaybackInfo 信息

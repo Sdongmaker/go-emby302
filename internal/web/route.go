@@ -3,7 +3,6 @@ package web
 import (
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/constant"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/emby"
-	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/m3u8"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
 
 	"github.com/gin-gonic/gin"
@@ -47,18 +46,8 @@ func initRulePatterns() {
 
 		// 资源重定向到直链
 		{constant.Reg_ResourceStream, emby.Redirect2OpenlistLink},
-		// master 重定向到本地 m3u8 代理
-		{constant.Reg_ResourceMaster, emby.Redirect2Transcode},
-		// main 路由到直链接口
-		{constant.Reg_ResourceMain, emby.Redirect2Transcode},
 		// 处理 original 资源
 		{constant.Reg_ResourceOriginal, emby.ProxyOriginalResource},
-		// m3u8 转码播放列表
-		{constant.Reg_ProxyPlaylist, m3u8.ProxyPlaylist},
-		// ts 重定向到直链
-		{constant.Reg_ProxyTs, m3u8.ProxyTsLink},
-		// m3u8 字幕
-		{constant.Reg_ProxySubtitle, m3u8.ProxySubtitle},
 
 		// 资源下载, 重定向到直链
 		{constant.Reg_ItemDownload, emby.Redirect2OpenlistLink},
