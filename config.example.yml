@@ -1,0 +1,109 @@
+# go-emby302 配置文件示例
+# 详细说明请参考: https://github.com/AmbitiousJun/go-emby302
+
+# Emby 配置
+emby:
+  # Emby 源服务器地址
+  host: http://localhost:8096
+
+  # 图片质量 (1-100)
+  images-quality: 70
+
+  # 代理错误策略 (origin: 回源, reject: 拒绝请求)
+  proxy-error-strategy: origin
+
+  # 剧集未播优先展示
+  episodes-unplay-prior: true
+
+  # 随机列表重排序
+  resort-random-items: true
+
+  # STRM 文件路径映射配置
+  strm:
+    # CDN 配置列表（支持多个 CDN）
+    cdns:
+      # ============ GoEdge CDN 配置示例 ============
+      - name: "goedge-主CDN"              # CDN 名称（用于日志标识）
+        type: goedge                      # 鉴权类型: none(无鉴权) / goedge / tencent
+        base: https://cdn.goedge.com      # CDN 基础域名（不要以 / 结尾）
+        private-key: "your_goedge_secret" # GoEdge 鉴权密钥
+        rand-length: 16                   # 随机字符串长度（默认 16，设为 0 则使用 "0"）
+
+        # 该 CDN 下的路径映射规则
+        path-mappings:
+          - local-prefix: /mnt/media/剧集    # 本地路径前缀
+            remote-prefix: /series           # CDN 路径前缀
+
+          - local-prefix: /mnt/media/电影
+            remote-prefix: /movies
+
+          - local-prefix: /mnt/media/综艺
+            remote-prefix: /variety
+
+      # ============ 腾讯云 CDN 配置示例 ============
+      - name: "tencent-备用CDN"
+        type: tencent                          # 腾讯云 Type-A 鉴权
+        base: https://cdn.tencent.com
+        private-key: "your_tencent_secret"     # 腾讯云鉴权密钥
+        rand-length: 6                         # 随机字符串长度（默认 6）
+        uid: "0"                               # 用户 ID（默认 "0"）
+
+        path-mappings:
+          - local-prefix: /mnt/backup/videos
+            remote-prefix: /backup
+
+      # ============ 无鉴权 CDN 配置示例 ============
+      - name: "公共CDN"
+        type: none                             # 不使用鉴权
+        base: https://public-cdn.example.com
+
+        path-mappings:
+          - local-prefix: /mnt/public/media
+            remote-prefix: /public
+
+# 缓存配置
+cache:
+  enable: true  # 是否启用缓存
+
+# ============================================
+# 配置说明
+# ============================================
+#
+# 1. CDN 鉴权类型说明
+# --------------------
+#
+# - none: 不使用鉴权，直接拼接 URL
+#   示例: https://cdn.example.com/series/国产剧/xxx.mp4
+#
+# - goedge: GoEdge CDN 鉴权
+#   签名算法: MD5(path + "@" + ts + "@" + rand + "@" + privateKey)
+#   URL 格式: https://cdn.com/{url_encode(path)}?sign={ts}-{rand}-{md5}
+#
+# - tencent: 腾讯云 CDN Type-A 鉴权
+#   签名算法: MD5(uri + "-" + ts + "-" + rand + "-" + uid + "-" + privateKey)
+#   URL 格式: https://cdn.com/{url_encode(path)}?sign={ts}-{rand}-{uid}-{md5}
+#
+# 2. 路径映射示例
+# ----------------
+#
+# 本地文件: /mnt/media/剧集/国产剧/101次抢婚/S01E01.mp4
+# 配置:
+#   local-prefix: /mnt/media/剧集
+#   remote-prefix: /series
+#   base: https://cdn.example.com
+#
+# 无鉴权结果:
+#   https://cdn.example.com/series/国产剧/101次抢婚/S01E01.mp4
+#
+# GoEdge 鉴权结果:
+#   https://cdn.example.com/%2Fseries%2F%E5%9B%BD%E4%BA%A7%E5%89%A7%2F101%E6%AC%A1%E6%8A%A2%E5%A9%9A%2FS01E01.mp4?sign=1234567890-abc123-md5hash
+#
+# 3. 注意事项
+# -----------
+#
+# - 所有路径前缀不要以 / 结尾（程序会自动处理）
+# - CDN 域名不要以 / 结尾
+# - 相同域名的路径映射请合并到同一个 CDN 配置下
+# - private-key 请妥善保管，不要泄露
+# - rand-length 设为 0 时，随机字符串为 "0"（不推荐，安全性低）
+#

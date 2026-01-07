@@ -1,0 +1,135 @@
+# ============================================
+# 多 CDN 路径映射配置示例
+# ============================================
+#
+# 功能说明：
+# 1. 支持多个 CDN 同时生效
+# 2. 根据本地路径前缀自动选择对应的 CDN
+# 3. 每个 CDN 可以配置独立的鉴权方式
+#
+# 匹配规则：
+# - 程序会按照配置顺序遍历所有 CDN
+# - 找到第一个匹配的 local-prefix 就使用对应的 CDN
+# - 建议将更具体的路径配置放在前面
+# ============================================
+
+emby:
+  host: http://localhost:8096
+  images-quality: 70
+  proxy-error-strategy: origin
+  episodes-unplay-prior: true
+  resort-random-items: true
+
+  strm:
+    cdns:
+      # ============================================
+      # CDN 1: GoEdge CDN - 用于剧集
+      # ============================================
+      - name: "GoEdge-剧集专用"
+        type: goedge
+        base: https://cdn1.goedge.com
+        private-key: "goedge_series_secret_key"
+        rand-length: 16
+
+        path-mappings:
+          # 所有剧集使用 GoEdge CDN
+          - local-prefix: /mnt/media/剧集
+            remote-prefix: /series
+
+          # 动漫也使用 GoEdge CDN
+          - local-prefix: /mnt/media/动漫
+            remote-prefix: /anime
+
+      # ============================================
+      # CDN 2: 腾讯云 CDN - 用于电影
+      # ============================================
+      - name: "腾讯云-电影专用"
+        type: tencent
+        base: https://cdn2.tencent.com
+        private-key: "tencent_movies_secret_key"
+        rand-length: 6
+        uid: "0"
+
+        path-mappings:
+          # 所有电影使用腾讯云 CDN
+          - local-prefix: /mnt/media/电影
+            remote-prefix: /movies
+
+          # 纪录片也使用腾讯云 CDN
+          - local-prefix: /mnt/media/纪录片
+            remote-prefix: /documentary
+
+      # ============================================
+      # CDN 3: GoEdge CDN 2 - 用于综艺和音乐
+      # ============================================
+      - name: "GoEdge-综艺音乐"
+        type: goedge
+        base: https://cdn3.goedge.com
+        private-key: "goedge_variety_secret_key"
+        rand-length: 16
+
+        path-mappings:
+          - local-prefix: /mnt/media/综艺
+            remote-prefix: /variety
+
+          - local-prefix: /mnt/media/音乐
+            remote-prefix: /music
+
+      # ============================================
+      # CDN 4: 无鉴权 CDN - 用于公共资源
+      # ============================================
+      - name: "公共CDN"
+        type: none
+        base: https://public.cdn.com
+
+        path-mappings:
+          - local-prefix: /mnt/public
+            remote-prefix: /public
+
+# ============================================
+# 路径映射示例
+# ============================================
+#
+# 输入路径                                    → 匹配的 CDN        → 最终 URL
+# ----------------------------------------------------------------------------------------------------------------
+# /mnt/media/剧集/国产剧/xxx.mp4              → GoEdge-剧集专用   → https://cdn1.goedge.com/%2Fseries%2F...?sign=...
+# /mnt/media/电影/国产电影/xxx.mp4            → 腾讯云-电影专用   → https://cdn2.tencent.com/%2Fmovies%2F...?sign=...
+# /mnt/media/综艺/xxx.mp4                     → GoEdge-综艺音乐   → https://cdn3.goedge.com/%2Fvariety%2F...?sign=...
+# /mnt/public/xxx.mp4                         → 公共CDN           → https://public.cdn.com/public/xxx.mp4
+#
+# ============================================
+# 注意事项
+# ============================================
+#
+# 1. 路径匹配优先级：
+#    - 按照配置文件中 CDN 的顺序依次匹配
+#    - 找到第一个匹配的就停止搜索
+#    - 建议将更具体的路径配置放在前面
+#
+# 2. 避免路径冲突：
+#    错误示例：
+#      CDN 1: local-prefix: /mnt/media
+#      CDN 2: local-prefix: /mnt/media/剧集
+#
+#    问题：/mnt/media/剧集/xxx.mp4 会被 CDN 1 匹配（因为它在前面）
+#
+#    正确做法：
+#      CDN 1: local-prefix: /mnt/media/剧集  （更具体的在前）
+#      CDN 2: local-prefix: /mnt/media       （更通用的在后）
+#
+# 3. 严格前缀匹配：
+#    - local-prefix: /mnt/media
+#    - 会匹配: /mnt/media/file.mp4 ✅
+#    - 不会匹配: /mnt/media2/file.mp4 ❌
+#
+# 4. 同一 CDN 域名：
+#    - 如果多个路径使用相同的 CDN 域名和鉴权，请合并到同一个 CDN 配置下
+#    - 这样可以共享鉴权配置，减少冗余
+#
+# 5. 鉴权密钥安全：
+#    - 不要将配置文件提交到公开仓库
+#    - 建议使用环境变量或密钥管理工具
+#
+
+cache:
+  enable: true
