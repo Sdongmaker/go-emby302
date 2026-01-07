@@ -7,7 +7,6 @@ import (
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/maps"
-	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/randoms"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/strs"
 )
 
@@ -132,9 +131,10 @@ func (s *Strm) Init() error {
 
 // MapPath 将本地路径映射为 CDN 直链
 // 示例：
-//   输入: /mnt/media/剧集/国产剧/101次抢婚 (2023)/Season 1/101次抢婚 - S01E01 - 第 1 集.mp4
-//   配置: local-prefix: /mnt/media/剧集, cdn-base: https://cdn.example.com, remote-prefix: /剧集
-//   输出: https://cdn.example.com/剧集/国产剧/101次抢婚 (2023)/Season 1/101次抢婚 - S01E01 - 第 1 集.mp4
+//
+//	输入: /mnt/media/剧集/国产剧/101次抢婚 (2023)/Season 1/101次抢婚 - S01E01 - 第 1 集.mp4
+//	配置: local-prefix: /mnt/media/剧集, cdn-base: https://cdn.example.com, remote-prefix: /剧集
+//	输出: https://cdn.example.com/剧集/国产剧/101次抢婚 (2023)/Season 1/101次抢婚 - S01E01 - 第 1 集.mp4
 func (s *Strm) MapPath(localPath string) (string, error) {
 	for _, mapping := range s.PathMappings {
 		if strings.HasPrefix(localPath, mapping.LocalPrefix) {
