@@ -5,12 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strconv"
 
-	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
-	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/constant"
-	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/https"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/jsons"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
 	"github.com/gin-gonic/gin"
