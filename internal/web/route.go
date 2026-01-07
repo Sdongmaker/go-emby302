@@ -27,6 +27,9 @@ func initRulePatterns() {
 		// 拦截无效的进度报告
 		{constant.Reg_PlayingProgress, emby.PlayingProgressHelper},
 
+		// 自定义媒体库数量统计
+		{constant.Reg_ItemsCounts, emby.HandleItemsCounts},
+
 		// Items 接口
 		{constant.Reg_UserItems, emby.LoadCacheItems},
 		// 代理 Items 并添加转码版本信息

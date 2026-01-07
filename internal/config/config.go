@@ -23,6 +23,8 @@ type Config struct {
 	Ssl *Ssl `yaml:"ssl"`
 	// Log 日志相关配置
 	Log *Log `yaml:"log"`
+	// ItemsCounts 媒体库数量统计配置
+	ItemsCounts *ItemsCounts `yaml:"items-counts"`
 }
 
 // C 全局唯一配置对象

@@ -133,3 +133,24 @@ emby:
 
 cache:
   enable: true
+
+# ============================================
+# 媒体库数量统计配置（可选）
+# ============================================
+items-counts:
+  # 是否启用自定义统计
+  enable: false
+
+  # 自定义显示的媒体数量
+  movie-count: 1000
+  series-count: 500
+  episode-count: 5000
+
+  # 不使用的类型设为 0
+  game-count: 0
+  artist-count: 0
+  song-count: 0
+  album-count: 0
+
+  # 总数量（0 = 自动计算）
+  item-count: 0
