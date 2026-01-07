@@ -19,3 +19,9 @@ services:
     ports:
       - 8095:8095 # http
       - 8094:8094 # https
+    networks:
+      - 1panel-network
+
+networks:
+  1panel-network:
+    external: true
