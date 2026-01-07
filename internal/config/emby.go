@@ -274,12 +274,12 @@ func generateAuthUrl(cdn CdnConfig, cdnPath string) (string, error) {
 	case CdnAuthTypeGoEdge:
 		// GoEdge 鉴权
 		signedPath := cdnauth.GenerateGoEdgeSign(cdnPath, cdn.PrivateKey, cdn.RandLength)
-		return cdn.Base + "/" + signedPath, nil
+		return cdn.Base + signedPath, nil
 
 	case CdnAuthTypeTencent:
 		// 腾讯云鉴权
 		signedPath := cdnauth.GenerateTencentSign(cdnPath, cdn.PrivateKey, cdn.Uid, cdn.RandLength)
-		return cdn.Base + "/" + signedPath, nil
+		return cdn.Base + signedPath, nil
 
 	default:
 		return "", fmt.Errorf("不支持的鉴权类型: %s", cdn.Type)

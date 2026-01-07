@@ -18,9 +18,14 @@ func TestGenerateGoEdgeSign(t *testing.T) {
 		t.Errorf("GoEdge 签名格式错误: 应包含 ?sign=")
 	}
 
-	// 检查是否进行了 URL 编码
+	// 检查是否进行了 URL 编码（中文部分）
 	if !strings.Contains(result, "%E7%94%B5%E5%BD%B1") {
 		t.Errorf("GoEdge 签名路径应该进行 URL 编码")
+	}
+
+	// 检查路径分隔符没有被编码
+	if strings.HasPrefix(result, "%2F") {
+		t.Errorf("GoEdge 签名路径不应该编码开头的 /，实际: %s", result)
 	}
 
 	// 检查签名格式: ts-rand-md5
@@ -40,6 +45,12 @@ func TestGenerateGoEdgeSign(t *testing.T) {
 		t.Errorf("MD5 长度应该是 32，实际: %d", len(md5Part))
 	}
 
+	// 检查路径格式
+	pathPart := parts[0]
+	if !strings.HasPrefix(pathPart, "/") {
+		t.Errorf("路径应该以 / 开头，实际: %s", pathPart)
+	}
+
 	t.Logf("GoEdge 签名结果: %s", result)
 }
 
@@ -57,9 +68,14 @@ func TestGenerateTencentSign(t *testing.T) {
 		t.Errorf("腾讯云签名格式错误: 应包含 ?sign=")
 	}
 
-	// 检查是否进行了 URL 编码
+	// 检查是否进行了 URL 编码（中文部分）
 	if !strings.Contains(result, "%E7%94%B5%E5%BD%B1") {
 		t.Errorf("腾讯云签名路径应该进行 URL 编码")
+	}
+
+	// 检查路径分隔符没有被编码
+	if strings.HasPrefix(result, "%2F") {
+		t.Errorf("腾讯云签名路径不应该编码开头的 /，实际: %s", result)
 	}
 
 	// 检查签名格式: ts-rand-uid-md5
@@ -82,6 +98,12 @@ func TestGenerateTencentSign(t *testing.T) {
 	md5Part := signParts[3]
 	if len(md5Part) != 32 {
 		t.Errorf("MD5 长度应该是 32，实际: %d", len(md5Part))
+	}
+
+	// 检查路径格式
+	pathPart := parts[0]
+	if !strings.HasPrefix(pathPart, "/") {
+		t.Errorf("路径应该以 / 开头，实际: %s", pathPart)
 	}
 
 	t.Logf("腾讯云签名结果: %s", result)
