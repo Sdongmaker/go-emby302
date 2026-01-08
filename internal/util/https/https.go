@@ -32,10 +32,21 @@ func init() {
 			Dial: (&net.Dialer{Timeout: time.Minute}).Dial,
 			// 接收数据 5 分钟超时
 			ResponseHeaderTimeout: time.Minute * 5,
+			// 连接池配置
+			MaxIdleConns:        100,              // 最大空闲连接数
+			MaxIdleConnsPerHost: 20,               // 每个 host 最大空闲连接数
+			MaxConnsPerHost:     0,                // 每个 host 最大连接数（0 表示不限制）
+			IdleConnTimeout:     90 * time.Second, // 空闲连接超时时间
+			// 禁用压缩（避免代理时的编码问题）
+			DisableCompression: false,
+			// 禁用 keep-alive 超时
+			DisableKeepAlives: false,
 		},
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
+		// 总超时时间（包含连接建立、请求发送、响应读取）
+		Timeout: 10 * time.Minute,
 	}
 }
 

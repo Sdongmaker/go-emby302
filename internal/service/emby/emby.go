@@ -162,10 +162,14 @@ func ProxyRoot(c *gin.Context) {
 	}
 	defer resp.Body.Close()
 
+	// 必须先设置响应头，再设置状态码
 	https.CloneHeader(c.Writer, resp.Header)
 	c.Status(resp.StatusCode)
 
 	buf := bytess.CommonFixedBuffer()
 	defer buf.PutBack()
-	io.CopyBuffer(c.Writer, resp.Body, buf.Bytes())
+	_, copyErr := io.CopyBuffer(c.Writer, resp.Body, buf.Bytes())
+	if copyErr != nil {
+		logs.Error("ProxyRoot 响应体传输失败: %v", copyErr)
+	}
 }

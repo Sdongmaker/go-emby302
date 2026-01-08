@@ -34,12 +34,17 @@ func ChangeBaseVideoModuleCorsDefined(c *gin.Context) {
 	modObjCorsFunc := modObjPrototype + ".getCrossOriginValue"
 	jsScript := fmt.Sprintf(`(function(){ var modFunc; modFunc = function(){if(!%s||!%s||!%s||!%s){console.log('emby 未初始化完成...');setTimeout(modFunc);return;}%s=function(mediaSource,playMethod){return null;};console.log('cors 脚本补丁已注入')}; modFunc() })()`, modObj, modObjDefault, modObjPrototype, modObjCorsFunc, modObjCorsFunc)
 
-	c.Status(http.StatusOK)
+	// 必须先设置响应头，再设置状态码
 	https.CloneHeader(c.Writer, resp.Header)
+	c.Status(http.StatusOK)
 
 	buf := bytess.CommonFixedBuffer()
 	defer buf.PutBack()
-	io.CopyBuffer(c.Writer, resp.Body, buf.Bytes())
+	_, copyErr := io.CopyBuffer(c.Writer, resp.Body, buf.Bytes())
+	if copyErr != nil {
+		logs.Error("CORS 脚本响应体传输失败: %v", copyErr)
+		return
+	}
 
 	c.Writer.Write([]byte(jsScript))
 	c.Writer.Flush()

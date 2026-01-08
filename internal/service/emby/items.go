@@ -114,17 +114,21 @@ func RandomItemsWithLimit(c *gin.Context) {
 		return
 	}
 
-	c.Status(resp.StatusCode)
+	// 必须先设置所有响应头
 	https.CloneHeader(c.Writer, resp.Header)
 	c.Header(cache.HeaderKeyExpired, cache.Duration(time.Hour*3))
 	c.Header(cache.HeaderKeySpace, ItemsCacheSpace)
 	c.Header(cache.HeaderKeySpaceKey, calcRandomItemsCacheKey(c))
+	c.Status(resp.StatusCode)
 
 	c.Writer.WriteHeaderNow()
 
 	buf := bytess.CommonFixedBuffer()
 	defer buf.PutBack()
-	io.CopyBuffer(c.Writer, resp.Body, buf.Bytes())
+	_, copyErr := io.CopyBuffer(c.Writer, resp.Body, buf.Bytes())
+	if copyErr != nil {
+		logs.Error("Random Items 响应体传输失败: %v", copyErr)
+	}
 }
 
 // calcRandomItemsCacheKey 计算 random items 在缓存空间中的 key 值

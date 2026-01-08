@@ -105,13 +105,16 @@ func ProxyPass(r *http.Request, w http.ResponseWriter, remote string) error {
 	}
 	defer resp.Body.Close()
 
-	// 2 回写响应头
-	w.WriteHeader(resp.StatusCode)
+	// 2 回写响应头（必须在 WriteHeader 之前设置）
 	CloneHeader(w, resp.Header)
+	w.WriteHeader(resp.StatusCode)
 
 	// 3 回写响应体
 	buf := bytess.CommonFixedBuffer()
 	defer buf.PutBack()
-	io.CopyBuffer(w, resp.Body, buf.Bytes())
-	return err
+	_, copyErr := io.CopyBuffer(w, resp.Body, buf.Bytes())
+	if copyErr != nil {
+		return fmt.Errorf("响应体传输失败: %v", copyErr)
+	}
+	return nil
 }
