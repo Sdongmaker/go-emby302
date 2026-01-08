@@ -11,6 +11,10 @@ import (
 const host = "http://0.0.0.0:12345"
 
 func TestWriteFakeMP3(t *testing.T) {
+	if os.Getenv("GE2O_RUN_FFMPEG_TESTS") != "1" {
+		t.Skip("skip integration test: set GE2O_RUN_FFMPEG_TESTS=1 to enable")
+	}
+
 	if err := ffmpeg.AutoDownloadExec("../../.."); err != nil {
 		t.Fatal(err)
 		return

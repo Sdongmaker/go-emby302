@@ -3,6 +3,7 @@ package openlist_test
 import (
 	"log"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
@@ -10,7 +11,15 @@ import (
 )
 
 func TestFetch(t *testing.T) {
-	err := config.ReadFromFile("../../../config.yml")
+	cfg := os.Getenv("GE2O_CONFIG")
+	if cfg == "" {
+		cfg = "../../../config.yml"
+	}
+	if _, err := os.Stat(cfg); err != nil {
+		t.Skipf("skip integration test: missing config file: %s", cfg)
+	}
+
+	err := config.ReadFromFile(cfg)
 	if err != nil {
 		t.Error(err)
 		return

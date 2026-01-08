@@ -12,7 +12,15 @@ import (
 
 const host = "http://0.0.0.0:12345"
 
+func skipUnlessEnabled(t *testing.T) {
+	t.Helper()
+	if os.Getenv("GE2O_RUN_FFMPEG_TESTS") != "1" {
+		t.Skip("skip integration test: set GE2O_RUN_FFMPEG_TESTS=1 to enable")
+	}
+}
+
 func TestInspectInfo(t *testing.T) {
+	skipUnlessEnabled(t)
 	if err := ffmpeg.AutoDownloadExec("../../../.."); err != nil {
 		t.Fatal(err)
 		return
@@ -27,6 +35,7 @@ func TestInspectInfo(t *testing.T) {
 }
 
 func TestInspectMusicFlac(t *testing.T) {
+	skipUnlessEnabled(t)
 	if err := ffmpeg.AutoDownloadExec("../../../.."); err != nil {
 		t.Fatal(err)
 		return
@@ -41,6 +50,7 @@ func TestInspectMusicFlac(t *testing.T) {
 }
 
 func TestInspectMusicMP3(t *testing.T) {
+	skipUnlessEnabled(t)
 	if err := ffmpeg.AutoDownloadExec("../../../.."); err != nil {
 		t.Fatal(err)
 		return
@@ -56,6 +66,7 @@ func TestInspectMusicMP3(t *testing.T) {
 }
 
 func TestExtractMusicCover(t *testing.T) {
+	skipUnlessEnabled(t)
 	if err := ffmpeg.AutoDownloadExec("../../../.."); err != nil {
 		t.Fatal(err)
 		return
