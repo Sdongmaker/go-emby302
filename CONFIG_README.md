@@ -24,6 +24,24 @@ cp config.example.yml config.yml
 docker compose up -d --build
 ```
 
+如果你使用 Docker Hub 已发布的镜像（推荐），先拉取：
+
+```bash
+docker pull tdck/go-emby302
+```
+
+并把 `docker-compose.yml` 里的 `build:` 改成：
+
+```yaml
+image: tdck/go-emby302:latest
+```
+
+然后执行：
+
+```bash
+docker compose up -d
+```
+
 ## 常用配置
 
 ### CDN（STRM 302）
@@ -71,4 +89,3 @@ items-counts:
 
 - 查看日志：`docker compose logs -f`
 - 配置错误通常会在启动时直接退出并打印原因
-

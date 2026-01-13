@@ -15,7 +15,29 @@
 - **Web 注入（可选）**：给 Emby Web 注入自定义 JS/CSS（`custom-js/`、`custom-css/`）。
 - **OpenList 本地目录树（可选）**：按 `openlist.local-tree-gen` 将 OpenList 目录生成到本地（`strm`/虚拟媒体/或下载源文件）。
 
-## 部署（Docker Compose）
+## 部署
+
+### Docker Hub 镜像
+
+镜像已发布到 Docker Hub：
+
+```bash
+docker pull tdck/go-emby302
+```
+
+如果你使用本仓库自带的 `docker-compose.yml`，建议将 `build:` 改为：
+
+```yaml
+image: tdck/go-emby302:latest
+```
+
+然后启动：
+
+```bash
+docker compose up -d
+```
+
+### Docker Compose 本地构建
 
 1. 复制配置：
 
