@@ -93,7 +93,7 @@ emby:
   - 移除内部重定向跟随逻辑
   - 直接 302 重定向到 CDN 地址
 
-### 文件：`config-example.yml`
+### 文件：`config.example.yml`
 
 **变更：**
 - 更新配置格式为结构化的 `path-mappings`
