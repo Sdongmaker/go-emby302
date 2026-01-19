@@ -30,7 +30,7 @@ func (a *Openlist) Init() error {
 
 type LocalTreeGen struct {
 
-	// Enable 是否启用
+	// Enable 是否启用ss
 	Enable bool `yaml:"enable"`
 
 	// FFmpegEnable 是否启用 ffmpeg
