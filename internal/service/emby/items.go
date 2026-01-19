@@ -1,23 +1,14 @@
 package emby
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"math/rand"
 	"net/http"
 	"runtime"
-	"strconv"
-	"strings"
-	"time"
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
-	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/bytess"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/https"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/jsons"
-	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/urls"
-	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/web/cache"
 
 	"github.com/gin-gonic/gin"
 )
