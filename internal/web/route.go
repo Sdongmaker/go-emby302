@@ -55,13 +55,6 @@ func initRulePatterns() {
 		// web cors 处理
 		{constant.Reg_VideoModWebDefined, emby.ChangeBaseVideoModuleCorsDefined},
 
-		// 代理首页, 注入自定义脚本
-		{constant.Reg_IndexHtml, emby.ProxyIndexHtml},
-		// 响应自定义脚本
-		{constant.Route_CustomJs, emby.ProxyCustomJs},
-		// 响应自定义样式
-		{constant.Route_CustomCss, emby.ProxyCustomCss},
-
 		// 根路径重定向到首页
 		{constant.Reg_Root, emby.ProxyRoot},
 

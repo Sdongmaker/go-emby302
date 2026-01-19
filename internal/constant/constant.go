@@ -1,7 +1,7 @@
 package constant
 
 const (
-	CurrentVersion = "v2.3.2"
+	CurrentVersion = "v2.4.1"
 	RepoAddr       = "https://github.com/AmbitiousJun/go-emby2openlist"
 )
 
@@ -12,11 +12,11 @@ const (
 	Reg_PlayingStopped  = `(?i)^/.*sessions/playing/stopped`
 	Reg_PlayingProgress = `(?i)^/.*sessions/playing/progress`
 
-	Reg_UserItems                = `(?i)^/.*users/.*/items/\d+($|\?)`
-	Reg_UserEpisodeItems         = `(?i)^/.*users/.*/items\?.*includeitemtypes=(episode|movie)`
-	Reg_UserPlayedItems          = `(?i)^/.*users/.*/playeditems/(\d+)($|\?|/.*)?`
-	Reg_UserLatestItems          = `(?i)^/.*users/.*/items/latest($|\?)`
-	Reg_ItemsCounts              = `(?i)^/.*items/counts($|\?)`
+	Reg_UserItems        = `(?i)^/.*users/.*/items/\d+($|\?)`
+	Reg_UserEpisodeItems = `(?i)^/.*users/.*/items\?.*includeitemtypes=(episode|movie)`
+	Reg_UserPlayedItems  = `(?i)^/.*users/.*/playeditems/(\d+)($|\?|/.*)?`
+	Reg_UserLatestItems  = `(?i)^/.*users/.*/items/latest($|\?)`
+	Reg_ItemsCounts      = `(?i)^/.*items/counts($|\?)`
 
 	Reg_VideoSubtitles = `(?i)^/.*videos/.*/subtitles`
 
@@ -30,19 +30,13 @@ const (
 	Reg_VideoModWebDefined = `(?i)^/web/modules/htmlvideoplayer/plugin.js`
 	Reg_Proxy2Origin       = `^/$|(?i)^.*(/web|/users|/artists|/genres|/similar|/shows|/system|/remote|/scheduledtasks)`
 
-	Reg_Root        = `(?i)^/$`
-	Reg_IndexHtml   = `(?i)^/web/index\.html`
-	Route_CustomJs  = `/ge2o/custom.js`
-	Route_CustomCss = `/ge2o/custom.css`
+	Reg_Root = `(?i)^/$`
 
 	Reg_All = `.*`
 )
 
 const (
 	RouteSubMatchGinKey = "routeSubMatches" // 路由匹配成功时, 会将匹配的正则结果存放到 Gin 上下文
-
-	CustomJsDirName  = "custom-js"  // 自定义脚本存放目录
-	CustomCssDirName = "custom-css" // 自定义样式存放目录
 
 	CommonDlUserAgent = "libmpv" // 通用的下载 UA
 )

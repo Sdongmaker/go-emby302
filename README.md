@@ -10,7 +10,6 @@
 - **防转码 / 直放优先**：改写 `/Items/*/PlaybackInfo`，启用 DirectPlay/DirectStream，移除转码相关字段。
 - **PlaybackInfo 缓存（可选）**：开启 `cache.enable` 后减少对 Emby 的重复请求。
 - **自定义统计（可选）**：拦截 `/Items/Counts`，按 `items-counts` 返回自定义数量。
-- **Web 注入（可选）**：给 Emby Web 注入自定义 JS/CSS（`custom-js/`、`custom-css/`）。
 - **OpenList 本地目录树（可选）**：按 `openlist.local-tree-gen` 将 OpenList 目录生成到本地（`strm`/虚拟媒体/或下载源文件）。
 
 ## 部署
