@@ -42,10 +42,6 @@ var validDlStrategy = map[DlStrategy]struct{}{
 type Emby struct {
 	// Emby 源服务器地址
 	Host string `yaml:"host"`
-	// EpisodesUnplayPrior 在获取剧集列表时是否将未播资源优先展示
-	EpisodesUnplayPrior bool `yaml:"episodes-unplay-prior"`
-	// ResortRandomItems 是否对随机的 items 进行重排序
-	ResortRandomItems bool `yaml:"resort-random-items"`
 	// ProxyErrorStrategy 代理错误时的处理策略
 	ProxyErrorStrategy PeStrategy `yaml:"proxy-error-strategy"`
 	// ImagesQuality 图片质量

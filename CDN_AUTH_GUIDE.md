@@ -270,8 +270,6 @@ emby:
   host: http://localhost:8096
   images-quality: 70
   proxy-error-strategy: origin
-  episodes-unplay-prior: true
-  resort-random-items: true
 
   strm:
     cdns:

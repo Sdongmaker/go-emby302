@@ -53,7 +53,6 @@ func CacheableRouteMarker() gin.HandlerFunc {
 		regexp.MustCompile(constant.Reg_ResourceStream),
 		regexp.MustCompile(constant.Reg_ItemDownload),
 		regexp.MustCompile(constant.Reg_ItemSyncDownload),
-		regexp.MustCompile(constant.Reg_UserItemsRandomWithLimit),
 	}
 
 	return func(c *gin.Context) {

@@ -12,12 +12,6 @@ emby:
   # 代理错误策略 (origin: 回源, reject: 拒绝请求)
   proxy-error-strategy: origin
 
-  # 剧集未播优先展示
-  episodes-unplay-prior: true
-
-  # 随机列表重排序
-  resort-random-items: true
-
   # STRM 文件路径映射配置
   strm:
     # CDN 配置列表（支持多个 CDN）

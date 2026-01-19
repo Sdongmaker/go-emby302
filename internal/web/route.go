@@ -34,15 +34,8 @@ func initRulePatterns() {
 		{constant.Reg_UserItems, emby.LoadCacheItems},
 		// 代理 Items 并添加转码版本信息
 		{constant.Reg_UserEpisodeItems, emby.ProxyAddItemsPreviewInfo},
-		// 随机列表接口
-		{constant.Reg_UserItemsRandomResort, emby.ResortRandomItems},
-		// 代理原始的随机列表接口, 去除 limit 限制, 并进行缓存
-		{constant.Reg_UserItemsRandomWithLimit, emby.RandomItemsWithLimit},
 		// 代理 Latest 接口, 解码媒体的 Path 字段
 		{constant.Reg_UserLatestItems, emby.ProxyLatestItems},
-
-		// 重排序剧集
-		{constant.Reg_ShowEpisodes, emby.ResortEpisodes},
 
 		// 字幕长时间缓存
 		{constant.Reg_VideoSubtitles, emby.ProxySubtitles},

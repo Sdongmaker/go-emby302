@@ -18,8 +18,6 @@
 
 ## 可选增强
 
-- **随机列表重排序**：`emby.resort-random-items: true`
-- **剧集未播优先**：`emby.episodes-unplay-prior: true`
 - **图片质量统一**：`emby.images-quality`
 - **/Items/Counts 自定义统计**：`items-counts.enable: true`（见 `ITEMS_COUNTS_GUIDE.md`）
 - **Web 注入自定义 JS/CSS**：把文件放到 `custom-js/`、`custom-css/`（支持在文件内写 URL 进行远程加载）
