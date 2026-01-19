@@ -32,7 +32,7 @@ jobs:
           context: .
           push: true
           # 使用 secrets 动态获取用户名，并匹配你刚建的仓库名 go-emby302
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/go-emby302:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/go-emby302:2.4.1
           # 开启缓存，让下次构建速度飞快
           cache-from: type=gha
           cache-to: type=gha,mode=max
